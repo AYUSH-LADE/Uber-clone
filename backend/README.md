@@ -108,6 +108,146 @@ Example response:
 }
 ```
 
+## Register Captain
+
+Creates a new captain account with vehicle information and returns an authentication token.
+
+### Endpoint
+
+```http
+POST /captain/register
+```
+
+### Headers
+
+```http
+Content-Type: application/json
+```
+
+### Request Body
+
+```json
+{
+  "fullname": {
+    "firstname": "Alex",
+    "lastname": "Morgan"
+  },
+  "email": "alex.morgan@example.com",
+  "password": "secret123",
+  "vehicle": {
+    "color": "Black",
+    "plate": "ABC-1234",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+### Required Data
+
+| Field | Type | Required | Requirements |
+| --- | --- | --- | --- |
+| `fullname.firstname` | String | Yes | At least 3 characters |
+| `fullname.lastname` | String | Yes | At least 3 characters |
+| `email` | String | Yes | Must be a valid email address |
+| `password` | String | Yes | At least 6 characters |
+| `vehicle.color` | String | Yes | At least 3 characters |
+| `vehicle.plate` | String | Yes | At least 3 characters |
+| `vehicle.capacity` | Number | Yes | Must be a number and at least 1 |
+| `vehicle.vehicleType` | String | Yes | Must be `car`, `motorcycle`, or `auto` |
+
+The password is hashed before it is saved. Do not send a pre-hashed password from the client.
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:3000/captain/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullname": {
+      "firstname": "Alex",
+      "lastname": "Morgan"
+    },
+    "email": "alex.morgan@example.com",
+    "password": "secret123",
+    "vehicle": {
+      "color": "Black",
+      "plate": "ABC-1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }'
+```
+
+### Responses
+
+#### `201 Created`
+
+The captain was registered successfully.
+
+Example response:
+
+```json
+{
+  "token": "jwt-token",
+  "captain": {
+    "_id": "65f1a2b3c4d5e6f789012345",
+    "fullname": {
+      "firstname": "Alex",
+      "lastname": "Morgan"
+    },
+    "email": "alex.morgan@example.com",
+    "vehicle": {
+      "color": "Black",
+      "plate": "ABC-1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    },
+    "status": "inactive"
+  }
+}
+```
+
+#### `400 Bad Request`
+
+One or more request fields failed validation, or the email is already registered.
+
+Validation response example:
+
+```json
+{
+  "errors": [
+    {
+      "type": "field",
+      "value": "bike",
+      "msg": "Invalid vehicle type",
+      "path": "vehicle.vehicleType",
+      "location": "body"
+    }
+  ]
+}
+```
+
+Duplicate email response example:
+
+```json
+{
+  "message": "Email already exists"
+}
+```
+
+#### `500 Internal Server Error`
+
+An unexpected server or database error occurred while registering the captain.
+
+Example response:
+
+```json
+{
+  "message": "Internal Server Error"
+}
+```
+
 ## Get User Profile
 
 Returns the profile of the currently authenticated user.

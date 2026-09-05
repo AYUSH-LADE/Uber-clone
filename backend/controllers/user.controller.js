@@ -11,6 +11,10 @@ module.exports.registerUser = async (req, res, next) => {
         }
 
         const { fullname, email, password } = req.body;
+        const isUserAlreadyExists = await userModel.findOne({ email });
+        if (isUserAlreadyExists) {
+            return res.status(400).json({ message: 'Email already exists' });
+        }
 
         const hashedPassword = await userModel.hashPassword(password);
 
@@ -25,7 +29,7 @@ module.exports.registerUser = async (req, res, next) => {
 
         res.cookie('token', token);
 
-        user.password = undefined; // don't leak hash back to client
+        user.password = undefined; 
 
         res.status(201).json({ token, user });
     } catch (err) {
