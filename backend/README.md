@@ -126,19 +126,19 @@ Content-Type: application/json
 
 ### Request Body
 
-```json
+```jsonc
 {
   "fullname": {
-    "firstname": "Alex",
-    "lastname": "Morgan"
+    "firstname": "Alex", // Required; minimum 3 characters
+    "lastname": "Morgan" // Required; minimum 3 characters
   },
-  "email": "alex.morgan@example.com",
-  "password": "secret123",
+  "email": "alex.morgan@example.com", // Required; must be a valid email
+  "password": "secret123", // Required; minimum 6 characters
   "vehicle": {
-    "color": "Black",
-    "plate": "ABC-1234",
-    "capacity": 4,
-    "vehicleType": "car"
+    "color": "Black", // Required; minimum 3 characters
+    "plate": "ABC-1234", // Required; minimum 3 characters
+    "capacity": 4, // Required; numeric value, minimum 1
+    "vehicleType": "car" // Required; car, motorcycle, or auto
   }
 }
 ```
@@ -187,11 +187,190 @@ The captain was registered successfully.
 
 Example response:
 
-```json
+```jsonc
 {
-  "token": "jwt-token",
+  "token": "jwt-token", // Use as Bearer token or token cookie
   "captain": {
-    "_id": "65f1a2b3c4d5e6f789012345",
+    "_id": "65f1a2b3c4d5e6f789012345", // MongoDB captain ID
+    "fullname": {
+      "firstname": "Alex",
+      "lastname": "Morgan"
+    },
+    "email": "alex.morgan@example.com",
+    "vehicle": {
+      "color": "Black",
+      "plate": "ABC-1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    },
+    "status": "inactive" // New captains start inactive
+  }
+}
+```
+
+#### `400 Bad Request`
+
+One or more request fields failed validation, or the email is already registered.
+
+Validation response example:
+
+```jsonc
+{
+  "errors": [
+    {
+      "type": "field",
+      "value": "bike",
+      "msg": "Invalid vehicle type",
+      "path": "vehicle.vehicleType", // Must be car, motorcycle, or auto
+      "location": "body"
+    }
+  ]
+}
+```
+
+Duplicate email response example:
+
+```jsonc
+{
+  "message": "Email already exists" // Email must be unique
+}
+```
+
+#### `500 Internal Server Error`
+
+An unexpected server or database error occurred while registering the captain.
+
+Example response:
+
+```jsonc
+{
+  "message": "Internal Server Error" // Unexpected server or database error
+}
+```
+
+## Login Captain
+
+Authenticates an existing captain and returns an authentication token.
+
+### Endpoint
+
+```http
+POST /captain/login
+```
+
+### Headers
+
+```http
+Content-Type: application/json
+```
+
+### Request Body
+
+```jsonc
+{
+  "email": "alex.morgan@example.com", // Required; must be a valid email
+  "password": "secret123" // Required; minimum 6 characters
+}
+```
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:3000/captain/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "alex.morgan@example.com",
+    "password": "secret123"
+  }'
+```
+
+### Responses
+
+#### `200 OK`
+
+The captain was authenticated successfully. The server also sets a `token` cookie.
+
+```jsonc
+{
+  "token": "jwt-token", // Use as Bearer token or token cookie
+  "captain": {
+    "_id": "65f1a2b3c4d5e6f789012345", // MongoDB captain ID
+    "fullname": {
+      "firstname": "Alex",
+      "lastname": "Morgan"
+    },
+    "email": "alex.morgan@example.com",
+    "vehicle": {
+      "color": "Black",
+      "plate": "ABC-1234",
+      "capacity": 4,
+      "vehicleType": "car" // car, motorcycle, or auto
+    },
+    "status": "inactive"
+  }
+}
+```
+
+#### `400 Bad Request`
+
+The email or password failed validation.
+
+```jsonc
+{
+  "errors": [
+    {
+      "type": "field",
+      "msg": "Invalid Email", // Email must be valid
+      "path": "email",
+      "location": "body"
+    }
+  ]
+}
+```
+
+#### `401 Unauthorized`
+
+The email or password is incorrect.
+
+```jsonc
+{
+  "message": "Invalid email or password" // Credentials do not match
+}
+```
+
+## Get Captain Profile
+
+Returns the profile of the authenticated captain.
+
+### Endpoint
+
+```http
+GET /captain/profile
+```
+
+### Authentication
+
+Send the token in the `Authorization` header or a `token` cookie:
+
+```http
+Authorization: Bearer <token>
+```
+
+### Example Request
+
+```bash
+curl -X GET http://localhost:3000/captain/profile \
+  -H "Authorization: Bearer jwt-token"
+```
+
+### Responses
+
+#### `200 OK`
+
+```jsonc
+{
+  "captain": {
+    "_id": "65f1a2b3c4d5e6f789012345", // MongoDB captain ID
     "fullname": {
       "firstname": "Alex",
       "lastname": "Morgan"
@@ -208,43 +387,70 @@ Example response:
 }
 ```
 
+#### `401 Unauthorized`
+
+```jsonc
+{
+  "message": "Unauthorized access. No token provided." // Token is required
+}
+```
+
 #### `400 Bad Request`
 
-One or more request fields failed validation, or the email is already registered.
-
-Validation response example:
-
-```json
+```jsonc
 {
-  "errors": [
-    {
-      "type": "field",
-      "value": "bike",
-      "msg": "Invalid vehicle type",
-      "path": "vehicle.vehicleType",
-      "location": "body"
-    }
-  ]
+  "message": "Invalid token." // Token is expired or malformed
 }
 ```
 
-Duplicate email response example:
+## Logout Captain
 
-```json
+Logs out the authenticated captain, clears the token cookie, and blacklists the token.
+
+### Endpoint
+
+```http
+GET /captain/logout
+```
+
+### Authentication
+
+Send the token in the `Authorization` header or a `token` cookie:
+
+```http
+Authorization: Bearer <token>
+```
+
+### Example Request
+
+```bash
+curl -X GET http://localhost:3000/captain/logout \
+  -H "Authorization: Bearer jwt-token"
+```
+
+### Responses
+
+#### `200 OK`
+
+```jsonc
 {
-  "message": "Email already exists"
+  "message": "Logged out successfully" // Token is blacklisted and cookie cleared
 }
 ```
 
-#### `500 Internal Server Error`
+#### `401 Unauthorized`
 
-An unexpected server or database error occurred while registering the captain.
-
-Example response:
-
-```json
+```jsonc
 {
-  "message": "Internal Server Error"
+  "message": "Access denied. No token provided." // Token is required
+}
+```
+
+#### `400 Bad Request`
+
+```jsonc
+{
+  "message": "Invalid token." // Token is expired or malformed
 }
 ```
 
