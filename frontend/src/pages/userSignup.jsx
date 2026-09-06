@@ -1,9 +1,10 @@
 import React from 'react';
+import {Link} from 'react-router-dom';
 
-const userSignup = () => {
+const UserSignup = () => {
     return (
         <div>userSignup</div>   
     )
 }
 
-export default userSignup;
+export default UserSignup;
