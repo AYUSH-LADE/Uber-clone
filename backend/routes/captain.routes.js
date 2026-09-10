@@ -25,5 +25,6 @@ router.post('/login',[
 );
 
 router.get('/profile',authMiddleware.authCaptain ,captainController.getCaptainProfile);
+router.patch('/update-status',authMiddleware.authCaptain ,captainController.updateStatus);
 router.get('/logout',authMiddleware.authCaptain ,captainController.logoutCaptain);
 module.exports = router;

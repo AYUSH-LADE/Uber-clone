@@ -81,6 +81,19 @@ module.exports.getCaptainProfile = async (req, res, next) => {
     }
 };
 
+module.exports.updateStatus = async (req, res, next) => {
+    try {
+        const { status } = req.body;
+        if (!['active', 'inactive'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+        const captain = await captainModel.findByIdAndUpdate(req.captain._id, { status }, { new: true });
+        res.status(200).json({ captain });
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports.logoutCaptain = async (req, res, next) => {
     try {
         const token = req.cookies.token || req.headers['authorization']?.split(' ')[1];
