@@ -147,65 +147,6 @@ Uber-Clone/
 
 ---
 
-## 🚀 Getting Started
-
-### 1. Clone the repository
-
-```bash
-git clone <YOUR_REPOSITORY_URL>
-cd Uber-Clone
-```
-
-### 2. Install backend dependencies
-
-```bash
-cd backend
-npm install
-```
-
-### 3. Configure environment variables
-
-Create a `.env` file inside the `backend` directory:
-
-```env
-PORT=4000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-GOOGLE_MAPS_API=your_google_maps_api_key
-```
-
-### 4. Start the backend
-
-```bash
-npm run dev
-```
-
-If your backend script is configured with Nodemon:
-
-```bash
-nodemon server.js
-```
-
----
-
-### 5. Install frontend dependencies
-
-Open another terminal:
-
-```bash
-cd frontend
-npm install
-```
-
-### 6. Start the frontend
-
-```bash
-npm run dev
-```
-
-The Vite development server will provide the local URL in your terminal.
-
----
 
 ## 🔐 Authentication
 
@@ -294,19 +235,7 @@ This project goes beyond basic CRUD operations and demonstrates practical full-s
 
 ---
 
-## 📸 Screenshots
 
-> Add screenshots/GIFs of the application here.
-
-```text
-User Dashboard
-Ride Booking
-Vehicle Selection
-Captain Dashboard
-Live Tracking
-```
-
----
 
 ## 🔮 Future Improvements
 
