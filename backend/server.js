@@ -1,6 +1,8 @@
 const http = require('http');
 const app = require('./app')
 const { initializeSocket } = require('./socket');
+const supportRoutes = require('./routes/support.routes');
+app.use('/api/support', supportRoutes);
 
 const server = http.createServer(app);
 initializeSocket(server);
